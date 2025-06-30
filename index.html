@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎲 No Frills Dice</title>
+    <meta name="description" content="A simple, beautiful dice rolling app with 3D animations. Click dice to hold them, then roll the rest!" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="🎲 No Frills Dice" />
+    <meta property="og:description" content="A simple, beautiful dice rolling app with 3D animations. Click dice to hold them, then roll the rest!" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:title" content="🎲 No Frills Dice" />
+    <meta property="twitter:description" content="A simple, beautiful dice rolling app with 3D animations. Click dice to hold them, then roll the rest!" />
+    
+    <style>
+      /* Prevent flash of unstyled content */
+      body { opacity: 0; }
+      body.loaded { opacity: 1; transition: opacity 0.3s ease; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Prevent flash of unstyled content
+      window.addEventListener('load', () => {
+        document.body.classList.add('loaded');
+      });
+    </script>
+  </body>
+</html>
