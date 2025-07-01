@@ -1,0 +1,835 @@
+# 🎲 No Frills Dice - Complete Deployment Guide
+
+## Table of Contents
+1. Prerequisites
+2. Pre-Deployment Preparation
+3. Build Process
+4. Static File Hosting Deployment
+5. Server-Based Deployment
+6. CDN Configuration
+7. Domain & SSL Setup
+8. Environment Configuration
+9. Performance Optimization
+10. Monitoring & Maintenance
+11. Troubleshooting
+12. Security Considerations
+
+================================================================================
+## 1. PREREQUISITES
+================================================================================
+
+### System Requirements
+- Node.js 16.0.0 or higher
+- npm 7.0.0 or higher (or yarn 1.22.0+)
+- Git (for version control)
+- Text editor or IDE
+- Web browser for testing
+- Terminal/Command Prompt access
+
+### Server Requirements (if self-hosting)
+- Linux/Windows/macOS server
+- Web server software (Apache, Nginx, or similar)
+- SSL certificate capability
+- Domain name (optional but recommended)
+- Minimum 1GB RAM, 10GB storage
+
+### Account Requirements
+- GitHub account (for source control)
+- Hosting provider account (choose one):
+  - Netlify (recommended for beginners)
+  - Vercel (excellent for React apps)
+  - AWS S3 + CloudFront
+  - Digital Ocean
+  - Your own VPS/server
+
+================================================================================
+## 2. PRE-DEPLOYMENT PREPARATION
+================================================================================
+
+### Step 2.1: Project Setup Verification
+1. Navigate to your project directory:
+   ```bash
+   cd /path/to/your/dice-project
+   ```
+
+2. Verify all dependencies are installed:
+   ```bash
+   npm install
+   ```
+
+3. Test the development build:
+   ```bash
+   npm run dev
+   ```
+   - Open browser to http://localhost:5173
+   - Test all functionality (rolling, holding, dark mode)
+   - Verify responsive design on mobile/desktop
+
+4. Run linting to catch any issues:
+   ```bash
+   npm run lint
+   ```
+
+### Step 2.2: Environment Configuration
+1. Create environment files if needed:
+   ```bash
+   # For production-specific settings
+   touch .env.production
+   ```
+
+2. Configure base path in vite.config.js if deploying to subdirectory:
+   ```javascript
+   export default defineConfig({
+     base: '/your-subdirectory/', // Change if not deploying to root
+     // ... rest of config
+   });
+   ```
+
+### Step 2.3: Create Deployment Backup
+1. Create a pre-deployment backup:
+   ```bash
+   npm run backup "Pre-deployment backup"
+   ```
+
+2. Commit all changes to version control:
+   ```bash
+   git add .
+   git commit -m "Prepare for deployment"
+   git push origin main
+   ```
+
+================================================================================
+## 3. BUILD PROCESS
+================================================================================
+
+### Step 3.1: Production Build
+1. Clean any previous builds:
+   ```bash
+   rm -rf dist/  # Linux/Mac
+   rmdir /s dist  # Windows
+   ```
+
+2. Create production build:
+   ```bash
+   npm run build
+   ```
+
+3. Verify build output:
+   ```bash
+   ls -la dist/  # Linux/Mac
+   dir dist\     # Windows
+   ```
+
+   Expected files:
+   - index.html
+   - assets/ folder with CSS and JS files
+   - favicon or icon files
+
+### Step 3.2: Test Production Build Locally
+1. Preview the production build:
+   ```bash
+   npm run preview
+   ```
+
+2. Test thoroughly:
+   - All dice functionality
+   - Dark mode toggle
+   - Responsive design
+   - Performance (should load quickly)
+
+### Step 3.3: Build Optimization Verification
+1. Check bundle size:
+   ```bash
+   du -sh dist/  # Linux/Mac
+   ```
+
+2. Verify assets are minified:
+   - Open dist/assets/*.js files
+   - Should be minified/compressed
+   - CSS should be combined and minified
+
+================================================================================
+## 4. STATIC FILE HOSTING DEPLOYMENT
+================================================================================
+
+### Option A: Netlify Deployment (Recommended for Beginners)
+
+#### Step 4A.1: Manual Upload Method
+1. Log into Netlify (https://netlify.com)
+2. Click "Add new site" > "Deploy manually"
+3. Drag and drop your entire `dist` folder
+4. Wait for deployment to complete
+5. Test your live site URL
+
+#### Step 4A.2: Git Integration Method (Recommended)
+1. Push your code to GitHub:
+   ```bash
+   git remote add origin https://github.com/yourusername/dice-app.git
+   git push -u origin main
+   ```
+
+2. In Netlify:
+   - Click "Add new site" > "Import from Git"
+   - Connect to GitHub
+   - Select your repository
+   - Configure build settings:
+     - Build command: `npm run build`
+     - Publish directory: `dist`
+   - Click "Deploy site"
+
+3. Configure custom domain (optional):
+   - Go to Site settings > Domain management
+   - Add custom domain
+   - Follow DNS configuration instructions
+
+### Option B: Vercel Deployment
+
+#### Step 4B.1: Vercel CLI Method
+1. Install Vercel CLI:
+   ```bash
+   npm install -g vercel
+   ```
+
+2. Login to Vercel:
+   ```bash
+   vercel login
+   ```
+
+3. Deploy from project directory:
+   ```bash
+   vercel
+   ```
+   - Follow prompts
+   - Choose settings (usually defaults work)
+
+4. For production deployment:
+   ```bash
+   vercel --prod
+   ```
+
+#### Step 4B.2: Git Integration Method
+1. Go to https://vercel.com
+2. Click "Import Project"
+3. Connect GitHub and select repository
+4. Configure:
+   - Framework: Vite
+   - Build command: `npm run build`
+   - Output directory: `dist`
+5. Click "Deploy"
+
+### Option C: AWS S3 + CloudFront
+
+#### Step 4C.1: S3 Setup
+1. Create S3 bucket:
+   ```bash
+   aws s3 mb s3://your-dice-app-bucket
+   ```
+
+2. Enable static website hosting:
+   ```bash
+   aws s3 website s3://your-dice-app-bucket --index-document index.html --error-document index.html
+   ```
+
+3. Upload files:
+   ```bash
+   aws s3 sync dist/ s3://your-dice-app-bucket --delete
+   ```
+
+4. Set bucket policy for public access:
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Sid": "PublicReadGetObject",
+         "Effect": "Allow",
+         "Principal": "*",
+         "Action": "s3:GetObject",
+         "Resource": "arn:aws:s3:::your-dice-app-bucket/*"
+       }
+     ]
+   }
+   ```
+
+#### Step 4C.2: CloudFront Setup
+1. Create CloudFront distribution
+2. Set origin to your S3 bucket
+3. Configure custom error pages:
+   - 403 -> /index.html (for SPA routing)
+   - 404 -> /index.html (for SPA routing)
+
+================================================================================
+## 5. SERVER-BASED DEPLOYMENT
+================================================================================
+
+### Option D: Apache Server
+
+#### Step 5D.1: Server Preparation
+1. Update server packages:
+   ```bash
+   sudo apt update && sudo apt upgrade  # Ubuntu/Debian
+   sudo yum update                      # CentOS/RHEL
+   ```
+
+2. Install Apache:
+   ```bash
+   sudo apt install apache2  # Ubuntu/Debian
+   sudo yum install httpd     # CentOS/RHEL
+   ```
+
+3. Start Apache:
+   ```bash
+   sudo systemctl start apache2   # Ubuntu/Debian
+   sudo systemctl start httpd     # CentOS/RHEL
+   sudo systemctl enable apache2  # Auto-start on boot
+   ```
+
+#### Step 5D.2: File Upload
+1. Upload dist files to web directory:
+   ```bash
+   sudo cp -r dist/* /var/www/html/
+   ```
+
+2. Set proper permissions:
+   ```bash
+   sudo chown -R www-data:www-data /var/www/html/
+   sudo chmod -R 755 /var/www/html/
+   ```
+
+#### Step 5D.3: Apache Configuration
+1. Create/edit virtual host:
+   ```bash
+   sudo nano /etc/apache2/sites-available/dice-app.conf
+   ```
+
+2. Add configuration:
+   ```apache
+   <VirtualHost *:80>
+       ServerName your-domain.com
+       DocumentRoot /var/www/html
+       
+       # Enable compression
+       LoadModule deflate_module modules/mod_deflate.so
+       <Location />
+           SetOutputFilter DEFLATE
+           SetEnvIfNoCase Request_URI \
+               \.(?:gif|jpe?g|png)$ no-gzip dont-vary
+       </Location>
+       
+       # Cache static assets
+       <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg)$">
+           ExpiresActive On
+           ExpiresDefault "access plus 1 year"
+       </FilesMatch>
+       
+       # SPA fallback
+       <Directory "/var/www/html">
+           RewriteEngine On
+           RewriteBase /
+           RewriteRule ^index\.html$ - [L]
+           RewriteCond %{REQUEST_FILENAME} !-f
+           RewriteCond %{REQUEST_FILENAME} !-d
+           RewriteRule . /index.html [L]
+       </Directory>
+       
+       ErrorLog ${APACHE_LOG_DIR}/error.log
+       CustomLog ${APACHE_LOG_DIR}/access.log combined
+   </VirtualHost>
+   ```
+
+3. Enable site and modules:
+   ```bash
+   sudo a2ensite dice-app.conf
+   sudo a2enmod rewrite
+   sudo a2enmod expires
+   sudo a2enmod deflate
+   sudo systemctl reload apache2
+   ```
+
+### Option E: Nginx Server
+
+#### Step 5E.1: Nginx Installation
+1. Install Nginx:
+   ```bash
+   sudo apt install nginx  # Ubuntu/Debian
+   sudo yum install nginx  # CentOS/RHEL
+   ```
+
+2. Start Nginx:
+   ```bash
+   sudo systemctl start nginx
+   sudo systemctl enable nginx
+   ```
+
+#### Step 5E.2: Nginx Configuration
+1. Create site configuration:
+   ```bash
+   sudo nano /etc/nginx/sites-available/dice-app
+   ```
+
+2. Add configuration:
+   ```nginx
+   server {
+       listen 80;
+       server_name your-domain.com;
+       root /var/www/dice-app;
+       index index.html;
+       
+       # Gzip compression
+       gzip on;
+       gzip_vary on;
+       gzip_min_length 1024;
+       gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+       
+       # Cache static assets
+       location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg)$ {
+           expires 1y;
+           add_header Cache-Control "public, immutable";
+       }
+       
+       # SPA fallback
+       location / {
+           try_files $uri $uri/ /index.html;
+       }
+       
+       # Security headers
+       add_header X-Frame-Options "SAMEORIGIN" always;
+       add_header X-XSS-Protection "1; mode=block" always;
+       add_header X-Content-Type-Options "nosniff" always;
+   }
+   ```
+
+3. Enable site:
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/dice-app /etc/nginx/sites-enabled/
+   sudo nginx -t  # Test configuration
+   sudo systemctl reload nginx
+   ```
+
+4. Upload files:
+   ```bash
+   sudo mkdir -p /var/www/dice-app
+   sudo cp -r dist/* /var/www/dice-app/
+   sudo chown -R www-data:www-data /var/www/dice-app
+   ```
+
+================================================================================
+## 6. CDN CONFIGURATION
+================================================================================
+
+### Step 6.1: CloudFlare Setup (Free CDN)
+1. Sign up at https://cloudflare.com
+2. Add your domain
+3. Update nameservers at your domain registrar
+4. Configure Page Rules:
+   - Cache everything for `*.css`, `*.js`, `*.png`, etc.
+   - Always online for main domain
+
+### Step 6.2: AWS CloudFront (if using S3)
+1. Create distribution with S3 origin
+2. Configure caching behaviors:
+   - Default: 24 hours
+   - Static assets (css, js, images): 1 year
+3. Set up custom error pages for SPA routing
+
+### Step 6.3: CDN Testing
+1. Test from different geographic locations:
+   - Use tools like https://www.webpagetest.org
+   - Check loading speeds from various regions
+2. Verify cache headers:
+   ```bash
+   curl -I https://your-domain.com/assets/index.css
+   ```
+
+================================================================================
+## 7. DOMAIN & SSL SETUP
+================================================================================
+
+### Step 7.1: Domain Configuration
+1. Point your domain to your hosting:
+   - For static hosts: Follow provider's DNS instructions
+   - For your server: Create A record pointing to server IP
+
+2. Configure DNS records:
+   ```
+   Type: A
+   Name: @
+   Value: YOUR_SERVER_IP
+   TTL: 3600
+   
+   Type: CNAME
+   Name: www
+   Value: your-domain.com
+   TTL: 3600
+   ```
+
+### Step 7.2: SSL Certificate Setup
+
+#### Option A: Let's Encrypt (Free, Recommended)
+1. Install Certbot:
+   ```bash
+   sudo apt install certbot python3-certbot-apache  # For Apache
+   sudo apt install certbot python3-certbot-nginx   # For Nginx
+   ```
+
+2. Get certificate:
+   ```bash
+   sudo certbot --apache -d your-domain.com -d www.your-domain.com  # Apache
+   sudo certbot --nginx -d your-domain.com -d www.your-domain.com   # Nginx
+   ```
+
+3. Test auto-renewal:
+   ```bash
+   sudo certbot renew --dry-run
+   ```
+
+#### Option B: Commercial SSL
+1. Purchase SSL certificate from provider
+2. Generate CSR on server
+3. Install certificate files
+4. Update web server configuration
+
+### Step 7.3: HTTPS Redirection
+1. Configure automatic HTTPS redirect:
+
+   Apache (.htaccess):
+   ```apache
+   RewriteEngine On
+   RewriteCond %{HTTPS} off
+   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+   ```
+
+   Nginx:
+   ```nginx
+   server {
+       listen 80;
+       server_name your-domain.com www.your-domain.com;
+       return 301 https://$server_name$request_uri;
+   }
+   ```
+
+================================================================================
+## 8. ENVIRONMENT CONFIGURATION
+================================================================================
+
+### Step 8.1: Production Environment Variables
+1. Create production environment file (if needed):
+   ```bash
+   # .env.production
+   VITE_APP_TITLE=No Frills Dice
+   VITE_APP_VERSION=1.0.0
+   VITE_API_URL=https://your-api-domain.com
+   ```
+
+### Step 8.2: Build Configuration
+1. Update vite.config.js for production:
+   ```javascript
+   export default defineConfig({
+     base: '/', // or your subdirectory
+     build: {
+       outDir: 'dist',
+       sourcemap: false, // Set to true for debugging
+       rollupOptions: {
+         output: {
+           manualChunks: {
+             vendor: ['react', 'react-dom'],
+             motion: ['framer-motion']
+           }
+         }
+       }
+     }
+   });
+   ```
+
+### Step 8.3: Server Environment
+1. Set proper environment variables:
+   ```bash
+   export NODE_ENV=production
+   export PORT=3000  # If using Node.js server
+   ```
+
+================================================================================
+## 9. PERFORMANCE OPTIMIZATION
+================================================================================
+
+### Step 9.1: Build Optimization
+1. Analyze bundle size:
+   ```bash
+   npx vite-bundle-analyzer dist
+   ```
+
+2. Optimize images (if any):
+   - Convert to WebP format where possible
+   - Compress images using tools like ImageOptim
+
+### Step 9.2: Server Optimization
+1. Enable compression:
+   ```bash
+   # Apache
+   sudo a2enmod deflate
+   
+   # Nginx (add to config)
+   gzip on;
+   gzip_comp_level 6;
+   ```
+
+2. Set up proper caching headers:
+   ```nginx
+   # Nginx example
+   location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+       expires 1y;
+       add_header Cache-Control "public, immutable";
+   }
+   ```
+
+### Step 9.3: Performance Testing
+1. Test with Google PageSpeed Insights
+2. Use Lighthouse for auditing
+3. Monitor with WebPageTest.org
+
+================================================================================
+## 10. MONITORING & MAINTENANCE
+================================================================================
+
+### Step 10.1: Monitoring Setup
+1. Set up uptime monitoring:
+   - Use services like UptimeRobot, Pingdom, or StatusCake
+   - Monitor main domain and key endpoints
+
+2. Set up error logging:
+   - Configure server error logs
+   - Set up log rotation
+
+### Step 10.2: Backup Strategy
+1. Automate regular backups:
+   ```bash
+   # Create backup script
+   #!/bin/bash
+   DATE=$(date +%Y%m%d_%H%M%S)
+   tar -czf /backups/dice-app-$DATE.tar.gz /var/www/dice-app
+   
+   # Keep only last 30 days of backups
+   find /backups -name "dice-app-*.tar.gz" -mtime +30 -delete
+   ```
+
+2. Set up cron job:
+   ```bash
+   crontab -e
+   # Add: 0 2 * * * /path/to/backup-script.sh
+   ```
+
+### Step 10.3: Update Process
+1. Create update procedure:
+   ```bash
+   #!/bin/bash
+   # update-dice-app.sh
+   
+   # Stop web server
+   sudo systemctl stop nginx
+   
+   # Backup current version
+   sudo cp -r /var/www/dice-app /var/www/dice-app.backup
+   
+   # Deploy new version
+   sudo cp -r dist/* /var/www/dice-app/
+   
+   # Restart web server
+   sudo systemctl start nginx
+   
+   # Test deployment
+   curl -I https://your-domain.com
+   ```
+
+================================================================================
+## 11. TROUBLESHOOTING
+================================================================================
+
+### Common Issues and Solutions
+
+#### Issue: 404 Errors on Refresh
+**Symptoms**: Page works when navigating from home, but 404 when refreshing
+**Solution**: Configure SPA fallback routing
+```apache
+# Apache
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+```
+
+#### Issue: Assets Not Loading
+**Symptoms**: HTML loads but CSS/JS files return 404
+**Solution**: Check base path configuration in vite.config.js
+```javascript
+export default defineConfig({
+  base: './', // Use relative paths
+});
+```
+
+#### Issue: Dark Mode Not Persisting
+**Symptoms**: Dark mode resets on page reload
+**Solution**: Check localStorage access and HTTPS
+- Ensure site is served over HTTPS
+- Check browser console for localStorage errors
+
+#### Issue: Slow Loading
+**Symptoms**: App takes long time to load
+**Solutions**:
+1. Enable compression on server
+2. Set up proper caching headers
+3. Use CDN for static assets
+4. Optimize bundle size
+
+#### Issue: Build Failures
+**Symptoms**: npm run build fails
+**Solutions**:
+1. Clear node_modules and reinstall:
+   ```bash
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+2. Check for syntax errors with linter:
+   ```bash
+   npm run lint
+   ```
+
+### Debug Commands
+```bash
+# Check server status
+sudo systemctl status nginx
+sudo systemctl status apache2
+
+# Check server logs
+sudo tail -f /var/log/nginx/error.log
+sudo tail -f /var/log/apache2/error.log
+
+# Test server configuration
+nginx -t
+apache2ctl configtest
+
+# Check file permissions
+ls -la /var/www/dice-app/
+
+# Test connectivity
+curl -I https://your-domain.com
+ping your-domain.com
+```
+
+================================================================================
+## 12. SECURITY CONSIDERATIONS
+================================================================================
+
+### Step 12.1: Server Security
+1. Update server regularly:
+   ```bash
+   sudo apt update && sudo apt upgrade
+   ```
+
+2. Configure firewall:
+   ```bash
+   sudo ufw allow 22    # SSH
+   sudo ufw allow 80    # HTTP
+   sudo ufw allow 443   # HTTPS
+   sudo ufw enable
+   ```
+
+3. Disable unnecessary services:
+   ```bash
+   sudo systemctl disable apache2  # If using Nginx
+   sudo systemctl disable nginx    # If using Apache
+   ```
+
+### Step 12.2: Application Security
+1. Set security headers:
+   ```nginx
+   add_header X-Frame-Options "SAMEORIGIN" always;
+   add_header X-XSS-Protection "1; mode=block" always;
+   add_header X-Content-Type-Options "nosniff" always;
+   add_header Referrer-Policy "no-referrer-when-downgrade" always;
+   add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+   ```
+
+2. Remove server version headers:
+   ```nginx
+   # Nginx
+   server_tokens off;
+   ```
+   
+   ```apache
+   # Apache
+   ServerTokens Prod
+   ServerSignature Off
+   ```
+
+### Step 12.3: SSL Security
+1. Use strong SSL configuration:
+   ```nginx
+   ssl_protocols TLSv1.2 TLSv1.3;
+   ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
+   ssl_prefer_server_ciphers off;
+   ```
+
+2. Enable HSTS:
+   ```nginx
+   add_header Strict-Transport-Security "max-age=63072000" always;
+   ```
+
+================================================================================
+## DEPLOYMENT CHECKLIST
+================================================================================
+
+### Pre-Deployment
+- [ ] All tests pass locally
+- [ ] Production build works locally
+- [ ] Code committed to version control
+- [ ] Backup created
+- [ ] Environment variables configured
+
+### Deployment
+- [ ] Files uploaded/deployed successfully
+- [ ] Web server configuration applied
+- [ ] SSL certificate installed
+- [ ] Domain DNS configured
+- [ ] CDN configured (if applicable)
+
+### Post-Deployment Testing
+- [ ] Site loads correctly
+- [ ] All dice functionality works
+- [ ] Dark mode toggle works
+- [ ] Responsive design on mobile/desktop
+- [ ] HTTPS redirect works
+- [ ] Performance is acceptable
+- [ ] No console errors
+
+### Monitoring Setup
+- [ ] Uptime monitoring configured
+- [ ] Error logging enabled
+- [ ] Backup schedule created
+- [ ] Update procedure documented
+
+================================================================================
+## SUPPORT AND MAINTENANCE
+================================================================================
+
+### Regular Maintenance Tasks
+- Weekly: Check uptime reports and error logs
+- Monthly: Review performance metrics
+- Quarterly: Update dependencies and security patches
+- Annually: Renew domain and SSL certificates
+
+### Emergency Contacts
+- Hosting provider support
+- Domain registrar support
+- SSL certificate provider
+- DNS provider support
+
+### Documentation Updates
+Keep this deployment guide updated with:
+- Configuration changes
+- New deployment procedures
+- Lessons learned from issues
+- Performance optimizations
+
+================================================================================
+END OF DEPLOYMENT GUIDE
+================================================================================

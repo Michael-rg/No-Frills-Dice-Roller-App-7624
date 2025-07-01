@@ -1,12 +1,12 @@
-import React, { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, {useState, useCallback} from 'react';
+import {motion, AnimatePresence} from 'framer-motion';
 import DiceGrid from './components/DiceGrid';
 import Controls from './components/Controls';
 import DarkModeToggle from './components/DarkModeToggle';
 import useDarkMode from './hooks/useDarkMode';
 
 function App() {
-  const [numDice, setNumDice] = useState(5);
+  const [numDice, setNumDice] = useState(2); // Changed from 5 to 2
   const [dice, setDice] = useState([]);
   const [heldDice, setHeldDice] = useState(new Set());
   const [isRolling, setIsRolling] = useState(false);
@@ -14,7 +14,7 @@ function App() {
 
   // Initialize dice when number changes
   React.useEffect(() => {
-    const newDice = Array.from({ length: numDice }, (_, i) => ({
+    const newDice = Array.from({length: numDice}, (_, i) => ({
       id: i,
       value: Math.floor(Math.random() * 6) + 1
     }));
@@ -33,7 +33,7 @@ function App() {
         prevDice.map(die => 
           heldDice.has(die.id) 
             ? die 
-            : { ...die, value: Math.floor(Math.random() * 6) + 1 }
+            : {...die, value: Math.floor(Math.random() * 6) + 1}
         )
       );
       setIsRolling(false);
@@ -64,9 +64,9 @@ function App() {
     // Roll animation duration
     setTimeout(() => {
       setDice(prevDice => 
-        prevDice.map(die => ({ 
-          ...die, 
-          value: Math.floor(Math.random() * 6) + 1 
+        prevDice.map(die => ({
+          ...die,
+          value: Math.floor(Math.random() * 6) + 1
         }))
       );
       setIsRolling(false);
@@ -79,9 +79,9 @@ function App() {
       <DarkModeToggle isDark={isDark} onToggle={toggleDarkMode} />
       
       {/* Header - Fixed at top */}
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+      <motion.div
+        initial={{y: -20, opacity: 0}}
+        animate={{y: 0, opacity: 1}}
         className="pt-4 pb-2 text-center"
       >
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">
@@ -91,23 +91,23 @@ function App() {
 
       <div className="flex flex-col items-center p-4 space-y-4">
         {/* Subtitle */}
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
+        <motion.p
+          initial={{opacity: 0}}
+          animate={{opacity: 1}}
+          transition={{delay: 0.2}}
           className="text-gray-600 dark:text-gray-300 text-sm text-center"
         >
           Click dice to hold, then roll the rest
         </motion.p>
 
         {/* Dice Grid */}
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.3 }}
+        <motion.div
+          initial={{scale: 0.9, opacity: 0}}
+          animate={{scale: 1, opacity: 1}}
+          transition={{delay: 0.3}}
           className="w-full max-w-sm"
         >
-          <DiceGrid 
+          <DiceGrid
             dice={dice}
             heldDice={heldDice}
             isRolling={isRolling}
@@ -116,10 +116,10 @@ function App() {
         </motion.div>
 
         {/* Controls */}
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
+        <motion.div
+          initial={{y: 20, opacity: 0}}
+          animate={{y: 0, opacity: 1}}
+          transition={{delay: 0.4}}
           className="w-full max-w-md"
         >
           <Controls

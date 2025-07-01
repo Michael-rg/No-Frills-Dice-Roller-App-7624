@@ -1,0 +1,497 @@
+# 🎲 No Frills Dice App - Customer Requirements Document
+
+## Document Information
+- **Project Name**: No Frills Dice
+- **Document Type**: Customer Requirements Specification
+- **Target Audience**: Technical customers with programming expertise
+- **Version**: 1.0
+- **Date**: January 2024
+
+================================================================================
+## EXECUTIVE SUMMARY
+================================================================================
+
+The No Frills Dice App is a premium web-based dice rolling application built with modern React technology. It provides an intuitive, visually polished interface for rolling 1-12 standard six-sided dice with advanced features including individual dice holding, 3D animations, and adaptive theming.
+
+### Key Value Propositions:
+- **Zero Learning Curve**: Intuitive click-to-hold interface
+- **Premium Visual Experience**: 3D dice animations with realistic physics
+- **Responsive Design**: Seamless experience across all devices
+- **Performance Optimized**: Sub-100ms interaction response times
+- **Accessibility Compliant**: WCAG AA standards for inclusive usage
+
+================================================================================
+## APPLICATION OVERVIEW
+================================================================================
+
+### Core Functionality
+The application simulates physical dice rolling with digital enhancements:
+- Roll between 1-12 standard six-sided dice simultaneously
+- Click any die to "hold" it, preventing it from rolling
+- Two rolling modes: "Roll Dice" (held dice remain) and "Roll All" (clears all holds)
+- Real-time visual feedback with 800ms 3D rolling animations
+- Persistent dark/light theme preference across sessions
+
+### Technical Architecture
+- **Frontend Framework**: React 18.3.1 with functional components and hooks
+- **Build System**: Vite 5.4.2 for optimized development and production builds
+- **Styling**: Tailwind CSS 3.4.17 for responsive, utility-first styling
+- **Animations**: Framer Motion 11.0.8 for smooth, performant animations
+- **Icons**: React Icons 5.4.0 (Feather icon set)
+- **Deployment**: Static files compatible with any web hosting service
+
+================================================================================
+## USER INTERFACE SPECIFICATION
+================================================================================
+
+### Layout Structure
+```
+┌─────────────────────────────────────┐
+│  🎲 No Frills Dice        [🌙]      │ ← Header with theme toggle
+│  Click dice to hold, then roll      │ ← Instruction text
+│                                     │
+│        ⚀  ⚁                        │ ← Dice grid (2 dice default)
+│                                     │
+│  Number of Dice: 2                  │ ← Dice count selector
+│  [1][2][3][4][5][6]                │
+│  [7][8][9][10][11][12]             │
+│                                     │
+│  [🎲 Roll Dice] [🔄 Roll All]      │ ← Action buttons
+└─────────────────────────────────────┘
+```
+
+### Visual Design Specifications
+
+#### Color Palette
+- **Primary Accent**: #007AFF (iOS system blue)
+- **Light Theme**: 
+  - Background: Linear gradient from blue-50 to indigo-100
+  - Components: White backgrounds with gray-200 borders
+  - Text: Gray-800 primary, gray-600 secondary
+- **Dark Theme**:
+  - Background: Linear gradient from gray-900 to gray-800
+  - Components: Gray-800 backgrounds with gray-700 borders
+  - Text: White primary, gray-300 secondary
+
+#### Typography
+- **Font Stack**: System fonts (-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto)
+- **Title**: 32px (desktop) / 24px (mobile), bold weight
+- **Body Text**: 14px, medium weight
+- **Buttons**: 16px, semibold weight
+
+#### Component Styling
+- **Dice Dimensions**: 64×64px (desktop) / 56×56px (mobile)
+- **Border Radius**: 8px for rounded corners
+- **Shadows**: Multi-layered shadows creating 3D depth illusion
+- **Spacing**: 12px gaps between dice, 16px section margins
+
+### Responsive Behavior
+- **Desktop (≥640px)**: Side-by-side button layout, larger dice size
+- **Mobile (<640px)**: Stacked button layout, optimized touch targets
+- **Adaptive Grid**: Dice automatically wrap to new rows (4 dice maximum per row)
+
+================================================================================
+## FUNCTIONAL REQUIREMENTS
+================================================================================
+
+### 1. Dice Management System
+
+#### Dice Count Selection
+- **Range**: 1-12 dice selectable via numbered buttons
+- **Default**: 2 dice on application startup
+- **Grid Layout**: 6-column button grid for count selection
+- **Visual Feedback**: Selected count highlighted with primary blue background
+- **State Persistence**: Current count maintained during rolling operations
+
+#### Dice Initialization
+- **Startup Behavior**: 2 dice with random values (1-6) assigned on load
+- **Count Changes**: New dice set generated when count is modified
+- **Reset Mechanism**: All hold states cleared when dice count changes
+
+### 2. Rolling Mechanics
+
+#### Standard Roll Operation
+- **Trigger**: "Roll Dice" button activation
+- **Behavior**: Only non-held dice receive new random values
+- **Animation**: 800ms multi-axis rotation animation
+- **Interaction Lock**: All controls disabled during animation
+- **Random Algorithm**: Math.floor(Math.random() * 6) + 1
+
+#### Roll All Operation  
+- **Trigger**: "Roll All Dice" button activation
+- **Behavior**: All hold states cleared, then all dice rolled
+- **Use Case**: Quick reset for new game scenarios
+- **Visual Feedback**: Held dice indicators removed before animation
+
+### 3. Hold System
+
+#### Hold Activation
+- **Method**: Single click/tap on any die
+- **Toggle Behavior**: Repeated clicks alternate between held/unheld states
+- **Visual Indicator**: 
+  - Blue background tint (#007AFF with opacity)
+  - Small blue corner badge with white dot
+  - Subtle scale animation on state change
+
+#### Hold Persistence
+- **Rolling Behavior**: Held dice maintain current values during standard rolls
+- **Count Changes**: Hold states reset when dice count is modified
+- **Visual Consistency**: Hold indicators remain visible throughout operations
+
+### 4. Animation System
+
+#### Rolling Animation Specifications
+- **Duration**: 800ms total animation time
+- **Easing**: "easeOut" for natural deceleration
+- **Rotation Axes**: Simultaneous X, Y, and Z-axis rotation
+- **Keyframes**: Progressive rotation values [0°, 360°, 720°, 1080°]
+- **Timing Distribution**: [0%, 30%, 60%, 100%] for realistic motion
+
+#### Interactive Animations
+- **Hover Effects**: 1.05× scale increase with enhanced shadow
+- **Click Feedback**: 0.95× scale decrease on tap/click
+- **Hold Indication**: Scale animation from 0 to 1 when activated
+- **Page Load**: Staggered component appearance with 100ms delays
+
+### 5. Theme System
+
+#### Dark Mode Implementation
+- **Trigger**: Moon/sun icon button in top-right corner
+- **Storage**: Preference saved to browser localStorage
+- **System Integration**: Respects user's OS dark/light preference on first visit
+- **Transition**: Smooth 300ms color transitions between themes
+
+#### Theme Toggle Behavior
+- **Icon Rotation**: 180° rotation animation on theme change
+- **Immediate Application**: Colors change instantly across all components
+- **Persistence**: Theme choice maintained across browser sessions
+- **Visual Feedback**: Button background adapts to current theme
+
+================================================================================
+## TECHNICAL SPECIFICATIONS  
+================================================================================
+
+### Performance Requirements
+
+#### Animation Performance
+- **Frame Rate**: Consistent 60fps during all animations
+- **GPU Acceleration**: Hardware-accelerated transforms for smooth motion
+- **Optimization**: Efficient re-rendering with React.memo and useCallback
+- **Response Time**: <100ms from user interaction to visual feedback
+
+#### Bundle Optimization
+- **JavaScript Bundle**: <50KB gzipped for main application code
+- **CSS Bundle**: <10KB gzipped for all styling
+- **Tree Shaking**: Unused code automatically eliminated
+- **Code Splitting**: Dynamic imports for optimal loading
+
+#### Runtime Performance
+- **Memory Usage**: <10MB heap size during normal operation
+- **State Updates**: Immutable state patterns for predictable rendering
+- **Event Handling**: Debounced interactions to prevent excessive updates
+- **Random Generation**: Cryptographically secure randomization
+
+### Browser Compatibility
+
+#### Minimum Supported Versions
+- **Chrome**: 90+ (March 2021)
+- **Firefox**: 88+ (April 2021)
+- **Safari**: 14+ (September 2020)
+- **Edge**: 90+ (April 2021)
+
+#### Required Browser Features
+- **ES Modules**: Native JavaScript module support
+- **CSS Grid**: Layout system for responsive design
+- **CSS Custom Properties**: Dynamic theming capabilities
+- **Flexbox**: Component alignment and distribution
+- **Local Storage**: Theme preference persistence
+
+### Accessibility Compliance
+
+#### WCAG 2.1 AA Standards
+- **Color Contrast**: 4.5:1 minimum ratio for all text
+- **Keyboard Navigation**: Full functionality via keyboard only
+- **Screen Readers**: Semantic HTML with appropriate ARIA labels
+- **Focus Management**: Visible focus indicators on all interactive elements
+
+#### Keyboard Controls
+- **Tab Navigation**: Logical tab order through all controls
+- **Enter/Space**: Button activation via keyboard
+- **Arrow Keys**: Navigation within dice count selector
+- **Escape**: Cancel ongoing animations (if implemented)
+
+#### Screen Reader Support
+- **Role Attributes**: Proper semantic roles for all components
+- **State Announcement**: Hold states communicated to assistive technology
+- **Label Association**: Form controls properly labeled
+- **Dynamic Updates**: Live regions for animation state changes
+
+================================================================================
+## USER EXPERIENCE FLOWS
+================================================================================
+
+### Primary Use Case: Basic Dice Rolling
+
+1. **Application Load**
+   - User navigates to application URL
+   - 2 dice appear with random values (default state)
+   - Staggered animation introduces interface elements
+   - Theme applied based on user preference or system setting
+
+2. **Dice Count Selection**
+   - User clicks desired number (1-12) in selector grid
+   - New dice set generates with random values
+   - Previous hold states cleared
+   - Smooth transition to new dice layout
+
+3. **Basic Rolling**
+   - User clicks "Roll Dice" button
+   - All dice animate with 3D rotation for 800ms
+   - New random values appear when animation completes
+   - Controls re-enable for next interaction
+
+### Advanced Use Case: Strategic Hold Pattern
+
+1. **Initial Setup**
+   - User selects 6 dice for gameplay
+   - Dice display random starting values
+   - User identifies dice to keep for strategy
+
+2. **Hold Selection**
+   - User clicks specific dice to hold
+   - Blue background and corner indicator appear
+   - Hold state persists visually
+   - Multiple dice can be held simultaneously
+
+3. **Strategic Rolling**
+   - User clicks "Roll Dice" button
+   - Only non-held dice animate and change values
+   - Held dice remain static with visual indicators
+   - Process repeats until desired outcome achieved
+
+4. **Reset for New Game**
+   - User clicks "Roll All Dice" button
+   - All hold states clear (visual indicators disappear)
+   - All dice animate and receive new values
+   - Fresh start for new game scenario
+
+### Theme Switching Flow
+
+1. **Theme Toggle**
+   - User clicks moon/sun icon in top-right corner
+   - Icon rotates 180° during transition
+   - All colors smoothly transition over 300ms
+   - New theme preference saved to local storage
+
+2. **Subsequent Visits**
+   - Application loads with user's preferred theme
+   - No flash of incorrect theme colors
+   - Consistent experience across sessions
+
+================================================================================
+## INTERFACE COMPONENT DETAILS
+================================================================================
+
+### Dice Component Specifications
+
+#### Visual Appearance
+- **3D Effect**: Layered shadow system creating depth illusion
+- **Dot Patterns**: Mathematically precise positioning using 9-grid system
+- **Hover State**: Elevated shadow and 1.05× scale increase
+- **Hold State**: Blue tint overlay with corner indicator badge
+
+#### Dot Pattern Implementation
+```
+Grid Positions (0-8):
+┌───┬───┬───┐
+│ 0 │ 1 │ 2 │
+├───┼───┼───┤
+│ 3 │ 4 │ 5 │
+├───┼───┼───┤
+│ 6 │ 7 │ 8 │
+└───┴───┴───┘
+
+Face Patterns:
+1: [4] (center only)
+2: [0, 8] (diagonal corners)  
+3: [0, 4, 8] (diagonal line)
+4: [0, 2, 6, 8] (four corners)
+5: [0, 2, 4, 6, 8] (corners + center)
+6: [0, 1, 2, 6, 7, 8] (two columns)
+```
+
+### Control Panel Specifications
+
+#### Dice Count Selector
+- **Layout**: 2×6 grid of numbered buttons (1-12)
+- **Default Selection**: Button "2" highlighted on startup
+- **Active State**: Primary blue background for selected count
+- **Disabled State**: Grayed out during rolling animations
+- **Touch Targets**: Minimum 44×44px for mobile accessibility
+
+#### Action Buttons
+- **Primary Button**: "Roll Dice" with play icon
+- **Secondary Button**: "Roll All Dice" with refresh icon  
+- **Loading State**: Spinner icon and "Rolling..." text during animations
+- **Responsive Layout**: Stacked vertically on mobile, side-by-side on desktop
+
+### Theme Toggle Specifications
+- **Position**: Fixed top-right corner with z-index priority
+- **Icons**: Sun (light mode) / Moon (dark mode) from Feather icon set
+- **Animation**: 180° rotation with 300ms duration
+- **Background**: Gradient matching current theme colors
+
+================================================================================
+## DATA SPECIFICATIONS
+================================================================================
+
+### Application State Structure
+```javascript
+// Main application state
+{
+  numDice: number,        // 1-12, current dice count (default: 2)
+  dice: Array<{           // Array of dice objects
+    id: number,           // Unique identifier (0-11)
+    value: number         // Current face value (1-6)
+  }>,
+  heldDice: Set<number>,  // Set of held dice IDs for O(1) lookup
+  isRolling: boolean,     // Animation state flag
+  isDark: boolean         // Theme state
+}
+```
+
+### Local Storage Data
+```javascript
+// Persisted user preferences
+{
+  "darkMode": boolean     // Theme preference (true/false)
+}
+```
+
+### Random Number Generation
+- **Algorithm**: Math.floor(Math.random() * 6) + 1
+- **Distribution**: Uniform probability for values 1-6
+- **Independence**: Each die roll independent of previous results
+- **Seed**: Browser's cryptographically secure random source
+
+================================================================================
+## DEPLOYMENT SPECIFICATIONS
+================================================================================
+
+### Build Output
+- **Static Files**: HTML, CSS, JavaScript bundles only
+- **Asset Optimization**: Minified and compressed for production
+- **Source Maps**: Available for debugging (configurable)
+- **Base Path**: Configurable for subdirectory deployment
+
+### Hosting Requirements
+- **Server Type**: Any static file hosting service
+- **HTTPS**: Required for localStorage and optimal performance
+- **Compression**: Gzip/Brotli compression recommended
+- **Caching**: Long-term caching for static assets with cache busting
+
+### Compatible Hosting Platforms
+- **Static Hosts**: Netlify, Vercel, GitHub Pages, AWS S3
+- **CDN Integration**: CloudFlare, AWS CloudFront, Azure CDN
+- **Traditional Servers**: Apache, Nginx with static file configuration
+
+### Environment Configuration
+- **Development**: Hot-reload development server on localhost:5173
+- **Production**: Optimized static files in dist/ directory
+- **Preview**: Local production preview via npm run preview
+
+================================================================================
+## QUALITY ASSURANCE CRITERIA
+================================================================================
+
+### Functional Testing Requirements
+
+#### Core Functionality Tests
+- [ ] All dice counts (1-12) generate correct number of dice
+- [ ] Application starts with 2 dice by default
+- [ ] Random values consistently fall within 1-6 range
+- [ ] Hold system toggles correctly for individual dice
+- [ ] Standard roll affects only non-held dice  
+- [ ] Roll All clears holds and rolls all dice
+- [ ] Theme toggle persists across browser sessions
+
+#### Animation Testing
+- [ ] Rolling animations complete in exactly 800ms
+- [ ] No frame drops during animation sequences
+- [ ] Smooth transitions between theme changes
+- [ ] Hover effects respond within 16ms (60fps)
+
+#### Responsive Design Testing  
+- [ ] Layout adapts correctly at 640px breakpoint
+- [ ] Touch targets minimum 44×44px on mobile devices
+- [ ] Text remains readable at all screen sizes
+- [ ] Dice grid wraps appropriately for all counts
+
+### Performance Benchmarks
+- **Initial Load**: <2 seconds on 3G connection
+- **Interaction Response**: <100ms from click to visual feedback
+- **Animation Frame Rate**: Consistent 60fps during rolling
+- **Memory Usage**: <10MB heap size during normal operation
+
+### Accessibility Validation
+- **WAVE Tool**: Zero errors, zero contrast warnings
+- **Keyboard Navigation**: Complete functionality without mouse
+- **Screen Reader**: All functionality announced correctly
+- **Color Blindness**: Interface usable with common color vision deficiencies
+
+================================================================================
+## SUCCESS METRICS
+================================================================================
+
+### User Experience Metrics
+- **Task Completion**: 100% success rate for basic rolling operations
+- **Learning Time**: <30 seconds to understand hold mechanism
+- **Error Rate**: <1% user errors during normal operation
+- **Satisfaction**: Positive feedback on visual polish and responsiveness
+
+### Technical Performance Metrics
+- **Load Time**: <2 seconds first contentful paint
+- **Interaction Latency**: <100ms response to user actions
+- **Animation Smoothness**: 60fps maintained during all animations
+- **Accessibility Score**: 100% Lighthouse accessibility audit
+
+### Browser Compatibility Metrics
+- **Cross-Browser**: Identical functionality across all supported browsers
+- **Device Coverage**: Seamless experience on desktop, tablet, and mobile
+- **Degradation**: Graceful fallbacks for unsupported features
+
+================================================================================
+## MAINTENANCE AND UPDATES
+================================================================================
+
+### Update Scenarios
+- **Dependency Updates**: Regular security and feature updates
+- **Browser Support**: Adaptation to new browser requirements  
+- **Performance Optimization**: Continuous improvement of load times
+- **Accessibility Enhancement**: Updates to meet evolving standards
+
+### Monitoring Requirements
+- **Error Tracking**: Client-side error reporting and analysis
+- **Performance Monitoring**: Real-time performance metrics
+- **Usage Analytics**: User interaction patterns and popular features
+- **Browser Support**: Tracking of browser version usage
+
+### Support Considerations
+- **Documentation**: Comprehensive technical and user documentation
+- **Issue Reporting**: Clear channels for bug reports and feature requests
+- **Version Control**: Semantic versioning for clear update communication
+- **Rollback Capability**: Ability to revert to previous stable versions
+
+================================================================================
+## CONCLUSION
+================================================================================
+
+The No Frills Dice App delivers a premium dice rolling experience through modern web technologies and thoughtful user experience design. Its combination of intuitive functionality, polished visual design, and robust technical implementation makes it suitable for both casual users and demanding applications.
+
+The application's focus on performance, accessibility, and cross-platform compatibility ensures a consistent, high-quality experience across all supported devices and browsers. The modular React architecture and comprehensive documentation facilitate easy maintenance and future enhancements.
+
+Key differentiators include the sophisticated 3D animation system, intelligent hold mechanism, and seamless theme switching—all delivered through a lightweight, fast-loading web application that requires no installation or complex setup.
+
+================================================================================
+END OF CUSTOMER REQUIREMENTS DOCUMENT
+================================================================================
